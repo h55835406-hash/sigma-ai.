@@ -10,102 +10,126 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600;800&display=swap');
         :root { --tg-theme-bg-color: #000; --sigma-gold: #fbbf24; }
-        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; padding: 0; overflow: hidden; }
         .font-sigma { font-family: 'Orbitron', sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.07); }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.07); }
         .creator-tag { background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.1), transparent); border-top: 1px solid rgba(251, 191, 36, 0.2); border-bottom: 1px solid rgba(251, 191, 36, 0.2); }
-        input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 5px; outline: none; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: var(--sigma-gold); border-radius: 50%; border: 3px solid #000; }
-        .loader { width: 45px; height: 45px; border: 3px solid rgba(251, 191, 36, 0.05); border-top: 3px solid var(--sigma-gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .loader { width: 40px; height: 40px; border: 3px solid rgba(251, 191, 36, 0.1); border-top: 3px solid var(--sigma-gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="p-4 flex flex-col gap-4">
+
+    <script>
+        // === ВСТАВЬ СВОЙ КЛЮЧ НИЖЕ МЕЖДУ КАВЫЧЕК ===
+        const apiKey = "ВСТАВЬ_КЛЮЧ_СЮДА"; 
+        // =========================================
+    </script>
+
     <div class="creator-tag py-2 text-center">
-        <p class="text-[10px] font-black uppercase tracking-[0.6em] text-amber-400">Created by <span class="text-white">hafa168</span></p>
+        <p class="text-[10px] font-black uppercase tracking-[0.5em] text-amber-400">Created by <span class="text-white">hafa168</span></p>
     </div>
+
     <div class="max-w-md mx-auto w-full space-y-5">
         <div class="flex items-center justify-between px-1">
-            <div class="flex items-center gap-3"><div class="bg-amber-400 p-2 rounded-2xl"><i data-lucide="zap" class="text-black w-5 h-5"></i></div>
-            <h1 class="text-xl font-sigma font-black text-amber-400 italic">SIGMA<span class="text-white">VISION</span></h1></div>
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-400 p-2 rounded-xl"><i data-lucide="zap" class="text-black w-5 h-5"></i></div>
+                <h1 class="text-xl font-sigma font-black text-amber-400 italic">SIGMA<span class="text-white">VISION</span></h1>
+            </div>
         </div>
-        <div id="display" class="aspect-square w-full glass-card rounded-[2.5rem] relative flex items-center justify-center overflow-hidden border border-white/5">
-            <div id="idle-view" class="text-center opacity-10"><i data-lucide="camera" class="w-16 h-16 mx-auto mb-4"></i><p class="text-[8px] font-black uppercase tracking-[0.5em]">System Ready</p></div>
-            <div id="loading-view" class="hidden flex flex-col items-center"><div class="loader mb-6"></div><p class="text-[10px] font-sigma text-amber-400 animate-pulse uppercase">СИНТЕЗ...</p></div>
+
+        <div id="display" class="aspect-square w-full glass-card rounded-[2.5rem] relative flex items-center justify-center overflow-hidden border border-white/5 shadow-2xl">
+            <div id="idle-view" class="text-center opacity-20">
+                <i data-lucide="image" class="w-16 h-16 mx-auto mb-4"></i>
+                <p class="text-[8px] font-black uppercase tracking-[0.5em]">Готов к генерации</p>
+            </div>
+            
+            <div id="loading-view" class="hidden flex flex-col items-center">
+                <div class="loader mb-4"></div>
+                <p class="text-[10px] font-sigma text-amber-400 animate-pulse uppercase">Создаю шедевр...</p>
+            </div>
+
             <img id="output-img" class="hidden w-full h-full object-cover">
+            
+            <button id="dl-btn" onclick="downloadImg()" class="hidden absolute bottom-4 right-4 bg-white text-black p-3 rounded-full shadow-xl active:scale-90 transition-all">
+                <i data-lucide="download" class="w-5 h-5"></i>
+            </button>
         </div>
+
         <div class="glass-card p-6 rounded-[2.5rem] space-y-6">
-            <div class="grid grid-cols-2 gap-6">
-                <div class="space-y-2"><label class="text-[8px] font-black opacity-40 uppercase">Реализм</label><input type="range" id="reality" min="1" max="5" value="5"></div>
-                <div class="space-y-2"><label class="text-[8px] font-black opacity-40 uppercase">Детали</label><input type="range" id="detail" min="1" max="5" value="5"></div>
+            <div class="bg-white/5 rounded-2xl border border-white/10 p-4 focus-within:border-amber-400/50 transition-all">
+                <textarea id="prompt" placeholder="Опишите что нарисовать..." class="w-full bg-transparent border-none text-sm text-white focus:outline-none h-16 resize-none placeholder-white/20"></textarea>
             </div>
-            <div class="flex gap-3 overflow-x-auto" id="gallery">
-                <label class="w-16 h-16 bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center shrink-0"><i data-lucide="plus" class="text-amber-400 w-6 h-6"></i><input type="file" id="files" class="hidden" multiple accept="image/*"></label>
-            </div>
-            <div class="bg-white/5 rounded-2xl border border-white/10 p-4"><textarea id="prompt" placeholder="Опишите ваш запрос..." class="w-full bg-transparent border-none text-sm text-white focus:outline-none h-16 resize-none"></textarea></div>
-            <button onclick="generate()" id="main-btn" class="w-full py-5 bg-amber-400 text-black rounded-3xl font-black uppercase tracking-[0.5em] text-[11px]">ГЕНЕРИРОВАТЬ</button>
+
+            <button onclick="generate()" id="main-btn" class="w-full py-5 bg-gradient-to-r from-amber-400 to-amber-600 text-black rounded-3xl font-black uppercase tracking-[0.4em] text-[11px] shadow-[0_10px_20px_rgba(251,191,36,0.2)] active:scale-95 transition-all">
+                ГЕНЕРИРОВАТЬ
+            </button>
         </div>
     </div>
+
     <script>
         lucide.createIcons();
-        const tg = window.Telegram.WebApp; tg.expand();
-        let images = [];
-        const apiKey = ""; 
-
-        document.getElementById('files').onchange = (e) => {
-            Array.from(e.target.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    images.push({ b64: ev.target.result.split(',')[1], full: ev.target.result });
-                    renderGallery();
-                };
-                reader.readAsDataURL(file);
-            });
-        };
-
-        function renderGallery() {
-            const container = document.getElementById('gallery');
-            document.querySelectorAll('.img-thumb').forEach(e => e.remove());
-            images.forEach((img, i) => {
-                const div = document.createElement('div');
-                div.className = "img-thumb w-16 h-16 shrink-0 rounded-2xl overflow-hidden border-2 border-white/10 relative";
-                div.innerHTML = `<img src="${img.full}" class="w-full h-full object-cover">`;
-                div.onclick = () => { images.splice(i, 1); renderGallery(); };
-                container.appendChild(div);
-            });
-        }
+        const tg = window.Telegram.WebApp;
+        tg.expand();
 
         async function generate() {
-            const pInput = document.getElementById('prompt').value;
+            const promptVal = document.getElementById('prompt').value;
+            if (!promptVal) return;
+            if (!apiKey || apiKey === "AIzaSyA1oOHy6sVMQaI2k3-SSAA8XqG6DMcHxJM") {
+                alert("Ты забыл вставить API ключ в коде!");
+                return;
+            }
+
             const idle = document.getElementById('idle-view');
             const loading = document.getElementById('loading-view');
             const output = document.getElementById('output-img');
             const btn = document.getElementById('main-btn');
+            const dl = document.getElementById('dl-btn');
 
-            idle.classList.add('hidden'); output.classList.add('hidden');
-            loading.classList.remove('hidden'); btn.disabled = true;
+            idle.classList.add('hidden');
+            output.classList.add('hidden');
+            dl.classList.add('hidden');
+            loading.classList.remove('hidden');
+            btn.disabled = true;
 
             try {
-                const r = document.getElementById('reality').value;
-                const d = document.getElementById('detail').value;
-                const finalPrompt = `${pInput}. Photorealistic 8k, details ${d}, realism ${r}. style of hafa168.`;
-                let url, body;
-                if (images.length > 0) {
-                    url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-                    const parts = [{ text: finalPrompt }];
-                    images.forEach(img => parts.push({ inlineData: { mimeType: "image/png", data: img.b64 } }));
-                    body = { contents: [{ parts }], generationConfig: { responseModalities: ['IMAGE'] } };
-                } else {
-                    url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
-                    body = { instances: [{ prompt: finalPrompt }] };
-                }
-                const res = await fetch(url, { method: 'POST', body: JSON.stringify(body) });
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+                const body = { 
+                    instances: [{ prompt: promptVal + ", high quality, 8k, photorealistic" }],
+                    parameters: { sampleCount: 1 }
+                };
+
+                const res = await fetch(url, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body) 
+                });
+                
                 const data = await res.json();
-                let b64 = images.length > 0 ? data.candidates[0].content.parts.find(p => p.inlineData).inlineData.data : data.predictions[0].bytesBase64Encoded;
-                output.src = `data:image/png;base64,${b64}`;
-                output.classList.remove('hidden');
-            } catch (e) { alert("Ошибка. Попробуйте другой текст."); idle.classList.remove('hidden'); }
-            finally { loading.classList.add('hidden'); btn.disabled = false; }
+                
+                if (data.predictions && data.predictions[0]) {
+                    const b64 = data.predictions[0].bytesBase64Encoded;
+                    output.src = `data:image/png;base64,${b64}`;
+                    output.classList.remove('hidden');
+                    dl.classList.remove('hidden');
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                } else {
+                    throw new Error("API Error");
+                }
+            } catch (e) {
+                alert("Ошибка! Проверь ключ или попробуй позже.");
+                idle.classList.remove('hidden');
+            } finally {
+                loading.classList.add('hidden');
+                btn.disabled = false;
+            }
+        }
+
+        function downloadImg() {
+            const link = document.createElement('a');
+            link.href = document.getElementById('output-img').src;
+            link.download = `hafa168_ai_${Date.now()}.png`;
+            link.click();
         }
     </script>
 </body>
